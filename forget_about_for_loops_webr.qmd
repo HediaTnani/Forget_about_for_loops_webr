@@ -183,7 +183,8 @@ map_lgl(1:5, double_it)
 map_chr(1:5, double_it)
 ```
 
-::: {.callout-caution icon=false} \## Solution
+::: {.callout-warning icon=false}
+## **Solution**
 
 1.  We can use `map_int` or `map_dbl` because it returns a numeric value.
 

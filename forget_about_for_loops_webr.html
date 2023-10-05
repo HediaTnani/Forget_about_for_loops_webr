@@ -2397,14 +2397,24 @@ map_chr(1:5, double_it)`,
     executeCode(editor.getValue());
   };
 </script>
-<p>::: {.callout-caution icon=false} ## Solution</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<strong>Solution</strong>
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <ol type="1">
 <li><p>We can use <code>map_int</code> or <code>map_dbl</code> because it returns a numeric value.</p></li>
 <li><p>Using <strong><code>map_int</code></strong> or <code>map_dbl</code> in this particular case would work as expected.</p></li>
 <li><p>You should not use <strong><code>map_chr</code></strong> or <strong><code>map_lgl</code></strong> with the <strong><code>double_it</code></strong> function, as the output of <strong><code>double_it</code></strong> is numeric. Using <strong><code>map_chr</code></strong> or <strong><code>map_lgl</code></strong> would throw an error because these functions expect the output to be of character or logical types, respectively.</p></li>
 <li><p>Each variant is designed to make it clear what type of output you should expect, making the code more readable and robust.</p></li>
 </ol>
-<p>:::</p>
+</div>
+</div>
 <section id="map2" class="level4">
 <h4 class="anchored" data-anchor-id="map2"><code>map2()</code></h4>
 <p>The <strong><code>map2</code></strong> function from the <strong><code>purrr</code></strong> package in R is used to apply a function to pairs of elements from two lists or vectors. The function takes three main arguments:</p>
