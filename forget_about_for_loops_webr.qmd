@@ -472,12 +472,23 @@ We want to do the following for each gene set and each sample:
 
 3.  Log-transform the average to get a single value representing each gene set's activity in each sample.
 
-::: {.callout-warning icon="false"}
+::: {.callout-note icon="false"}
+## **Task**
 Use `map_dfr` to loop over each gene set. Inside this, we use `map_dbl` to loop over each sample. For each gene set and each sample, call the `calculate_average_and_log` function. The final result is a tidy data frame with the average log-transformed expression level for each gene set in each sample.
 :::
 
 ## Solution
 ```{webr}
+# Function to calculate average expression and then log-transform it
+calculate_average_and_log <- function(df, gene_set) {
+  filtered_data <- df %>% 
+    filter(Gene %in% gene_set) %>% 
+    select(-Gene) %>% 
+    pull()
+  avg_exp <- mean(filtered_data, na.rm = TRUE)
+  return(log(avg_exp + 1))
+}
+
 # Nested map functions to perform the analysis
 results <- map_dfr(names(gene_sets), function(set_name) {
   gene_set <- gene_sets[[set_name]]

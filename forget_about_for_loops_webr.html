@@ -5060,13 +5060,13 @@ gene_sets <- list(
 <li><p>Calculate the average expression level of these genes.</p></li>
 <li><p>Log-transform the average to get a single value representing each gene set’s activity in each sample.</p></li>
 </ol>
-<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Warning
+<strong>Task</strong>
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -5095,7 +5095,17 @@ Warning
   let editor;
   require(['vs/editor/editor.main'], function () {
     editor = monaco.editor.create(editorDiv, {
-      value: `# Nested map functions to perform the analysis
+      value: `# Function to calculate average expression and then log-transform it
+calculate_average_and_log <- function(df, gene_set) {
+  filtered_data <- df %>% 
+    filter(Gene %in% gene_set) %>% 
+    select(-Gene) %>% 
+    pull()
+  avg_exp <- mean(filtered_data, na.rm = TRUE)
+  return(log(avg_exp + 1))
+}
+
+# Nested map functions to perform the analysis
 results <- map_dfr(names(gene_sets), function(set_name) {
   gene_set <- gene_sets[[set_name]]
   sample_results <- map_dbl(names(rna_seq_data)[-1], function(sample_name) {
