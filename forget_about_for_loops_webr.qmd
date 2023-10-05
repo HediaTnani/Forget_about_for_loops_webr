@@ -183,7 +183,7 @@ map_lgl(1:5, double_it)
 map_chr(1:5, double_it)
 ```
 
-::: {.callout-warning icon=false}
+::: {.callout-warning icon="false"}
 ## **Solution**
 
 1.  We can use `map_int` or `map_dbl` because it returns a numeric value.
@@ -193,7 +193,6 @@ map_chr(1:5, double_it)
 3.  You should not use **`map_chr`** or **`map_lgl`** with the **`double_it`** function, as the output of **`double_it`** is numeric. Using **`map_chr`** or **`map_lgl`** would throw an error because these functions expect the output to be of character or logical types, respectively.
 
 4.  Each variant is designed to make it clear what type of output you should expect, making the code more readable and robust.
-
 :::
 
 #### `map2()`
@@ -375,8 +374,6 @@ The **`imap`** function in **`purrr`** is used to iterate over both the elements
 Let's say we have a list of sequences and you want to label each sequence with a unique identifier based on its position in the list.
 
 ```{webr}
-library(dplyr)
-library(purrr)
 # Create a list of DNA sequences
 dna_sequences <- list(
   "ATCG",
@@ -417,23 +414,25 @@ Suppose we have three vectors:
 We'll calculate the GeneExp value for each gene in each sample.
 
 ```{webr}
-# Sample data
+library(purrr)
+library(dplyr)
+library(tibble)
+
+# Function to calculate GeneExp
+calculate_gene_exp <- function(gene, tpm_value, sample) {
+  gene_exp <- log(tpm_value) + 1
+  return(tibble(Gene = gene, Sample = sample, GeneExp = gene_exp))
+}
+
 genes <- c("Gene1", "Gene2", "Gene3")
 tpm_values <- c(10, 20, 30)
 samples <- c("Sample1", "Sample2", "Sample3")
 
-# Function to calculate GeneExp
-# Use of an anonymous function within pmap
-# ..1, ..2, and ..3 refer to genes, tpm_values, and samples, respectively
-calculate_gene_exp <- function(..1, ..2, ..3) {
-  gene_exp <- log(..2) + 1
-  return(data.frame(Gene = ..1, Sample = ..3, GeneExp = gene_exp))
-}
-
 # Use pmap_df to apply the function across all combinations
 result <- pmap_df(list(genes, tpm_values, samples), calculate_gene_exp)
 
-result
+# Display the result
+print(result)
 ```
 
 #### `other mapping f()`
@@ -441,6 +440,61 @@ result
 `map_if()`,`map_at()`: Apply only to certain elements.
 
 `walk` : for side effects like plotting; return input invisibly.
+
+## Intermediate level
+
+In bioinformatics, one common task is to perform some type of analysis on different sets of genes across multiple samples. Let's consider a scenario where we have RNA-seq data from different samples and different gene sets that we're interested in. We'll simulate this data for the demonstration.
+
+We'll simulate some RNA-seq data for 10 genes across 3 samples. We'll define two gene sets Set1 and Set2 that we're interested in.
+
+```{webr}
+# Simulated RNA-seq data: 10 genes x 3 samples
+rna_seq_data <- data.frame(
+  Gene = paste0("Gene", 1:10),
+  Sample1 = runif(10, 0, 100),
+  Sample2 = runif(10, 0, 100),
+  Sample3 = runif(10, 0, 100)
+)
+
+# Two example gene sets with different lengths
+gene_sets <- list(
+  Set1 = c("Gene1", "Gene3", "Gene5"),
+  Set2 = c("Gene2", "Gene4", "Gene6", "Gene7")
+)
+
+```
+
+We want to do the following for each gene set and each sample:
+
+1.  Filter the genes in the sample that belong to the gene set.
+
+2.  Calculate the average expression level of these genes.
+
+3.  Log-transform the average to get a single value representing each gene set's activity in each sample.
+
+::: {.callout-warning icon="false"}
+Use `map_dfr` to loop over each gene set. Inside this, we use `map_dbl` to loop over each sample. For each gene set and each sample, call the `calculate_average_and_log` function. The final result is a tidy data frame with the average log-transformed expression level for each gene set in each sample.
+:::
+
+## Solution
+```{webr}
+# Nested map functions to perform the analysis
+results <- map_dfr(names(gene_sets), function(set_name) {
+  gene_set <- gene_sets[[set_name]]
+  sample_results <- map_dbl(names(rna_seq_data)[-1], function(sample_name) {
+    sample_data <- rna_seq_data %>% select(Gene, all_of(sample_name))
+    calculate_average_and_log(sample_data, gene_set)
+  })
+  tibble(GeneSet = set_name, !!!set_names(sample_results, names(rna_seq_data)[-1]))
+})
+
+# Pivoting to make it tidy
+results_tidy <- results %>% 
+  pivot_longer(cols = -GeneSet, names_to = "Sample", values_to = "LogAvgExp")
+
+results_tidy
+```
+
 
 ## References
 
